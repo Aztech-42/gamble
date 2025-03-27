@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Racing Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #1a2a44, #2e4066);
+            color: #ffffff;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.light {
+            background: linear-gradient(to bottom, #e6e6e6, #ffffff);
+            color: #1a2a44;
+        }
+
+        #interface {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto 20px;
+        }
+
+        #credits-box {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #00cc66;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.3s;
+        }
+
+        body.light #credits-box {
+            background: rgba(0, 0, 0, 0.15);
+            color: #006633;
+        }
+
+        #credits-box span {
+            background: #ffffff;
+            color: #1a2a44;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        #settings-btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            background: #ff4d4d;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        #settings-btn:hover {
+            background: #cc0000;
+            transform: translateY(-2px);
+        }
+
+        #settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #settings-content {
+            background: #1a2a44;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            color: #ffffff;
+            position: relative;
+            text-align: left;
+        }
+
+        body.light #settings-content {
+            background: #ffffff;
+            color: #1a2a44;
+        }
+
+        #settings-content h2 {
+            margin-top: 0;
+            color: #ffd700;
+        }
+
+        body.light #settings-content h2 {
+            color: #ff4d4d;
+        }
+
+        #settings-content button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            background: #ff4d4d;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        #settings-content button:hover {
+            background: #cc0000;
+        }
+
+        #close-settings {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4d4d;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        #close-settings:hover {
+            background: #cc0000;
+        }
+
+        #betting-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #betting-area {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: background 0.3s;
+            width: 300px;
+        }
+
+        body.light #betting-area {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .bet-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #betting-area label {
+            font-size: 1.1em;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        body.light #betting-area label {
+            color: #ff4d4d;
+        }
+
+        select,
+        input[type="number"] {
+            padding: 8px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            background: #ffffff;
+            color: #1a2a44;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            width: 120px;
+        }
+
+        #start-btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            background: #00cc66;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        #start-btn:hover {
+            background: #00994d;
+            transform: translateY(-2px);
+        }
+
+        #start-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        #current-bet,
+        #bet-status {
+            font-size: 1.1em;
+            margin: 5px 0;
+            color: #ffd700;
+        }
+
+        body.light #current-bet,
+        body.light #bet-status {
+            color: #ff4d4d;
+        }
+
+        #bet-options {
+            display: none;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            flex-direction: column;
+            gap: 15px;
+            transition: background 0.3s;
+            width: 300px;
+            display: flex;
+            /* Ensure consistent flex display even when hidden */
+        }
+
+        body.light #bet-options {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        #bet-options p {
+            font-size: 1.2em;
+            color: #ffd700;
+            margin: 0;
+        }
+
+        body.light #bet-options p {
+            color: #ff4d4d;
+        }
+
+        #bet-options button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background: #ff4d4d;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        #bet-options button:hover {
+            background: #cc0000;
+            transform: translateY(-2px);
+        }
+
+        .game-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .track {
+            display: flex;
+            gap: 10px;
+            padding: 0;
+        }
+
+        .lane {
+            width: 80px;
+            text-align: center;
+        }
+
+        .row {
+            height: 120px;
+            border: 2px dashed #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            margin: 10px 0;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        .row:hover {
+            background: rgba(230, 230, 230, 0.5);
+        }
+
+        .horse {
+            width: 80px;
+            height: 120px;
+            background: #ffffff;
+            border: 2px solid #333;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            font-size: 2em;
+            transition: transform 0.3s ease;
+        }
+
+        .horse.hearts,
+        .horse.diamonds {
+            color: #ff0000;
+        }
+
+        .horse.clubs,
+        .horse.spades {
+            color: #000000;
+        }
+
+        .horse.moving {
+            transform: scale(1.2);
+        }
+
+        #cards-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        #side-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 80px;
+        }
+
+        #drawn-card {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 80px;
+            max-height: 640px;
+            /* 5 rows * (120px + 10px gap) + 10px extra */
+            overflow: hidden;
+        }
+
+        .card {
+            width: 80px;
+            height: 120px;
+            background: #ffffff;
+            border: 2px solid #333;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            font-family: 'Arial', sans-serif;
+            font-size: 1.5em;
+            position: relative;
+        }
+
+        .card .top-left,
+        .card .bottom-right {
+            font-size: 1em;
+            color: inherit;
+        }
+
+        .card .suit {
+            font-size: 2em;
+            line-height: 1;
+        }
+
+        .card.hearts,
+        .card.diamonds {
+            color: #ff0000;
+        }
+
+        .card.clubs,
+        .card.spades {
+            color: #000000;
+        }
+
+        .card-back {
+            width: 80px;
+            height: 120px;
+            background: repeating-linear-gradient(45deg,
+                    #666,
+                    #666 5px,
+                    #999 5px,
+                    #999 10px);
+            border: 2px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+
+        .card-back.revealed {
+            width: 80px;
+            height: 120px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
+            font-size: 1.5em;
+        }
+
+        .card-back.revealed.hearts,
+        .card-back.revealed.diamonds {
+            color: #ff0000;
+        }
+
+        .card-back.revealed.clubs,
+        .card-back.revealed.spades {
+            color: #000000;
+        }
+
+        .card-back.revealed .top-left,
+        .card-back.revealed .bottom-right {
+            font-size: 1em;
+        }
+
+        .card-back.revealed .suit {
+            font-size: 2em;
+            line-height: 1;
+        }
+
+        #winner {
+            font-size: 2em;
+            color: #00cc66;
+            margin-top: 20px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+        }
+
+        body.light #winner {
+            color: #006633;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        #rules-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #rules-content {
+            background: #1a2a44;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            color: #ffffff;
+            position: relative;
+            text-align: left;
+        }
+
+        body.light #rules-content {
+            background: #ffffff;
+            color: #1a2a44;
+        }
+
+        #rules-content h2 {
+            color: #ffd700;
+        }
+
+        body.light #rules-content h2 {
+            color: #ff4d4d;
+        }
+
+        #close-rules {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4d4d;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        #close-rules:hover {
+            background: #cc0000;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="interface">
+        <div id="credits-box">Credits: <span id="credits">100</span></div>
+        <button id="settings-btn">Settings</button>
+    </div>
+    <div id="betting-container">
+        <div id="betting-area">
+            <div class="bet-row">
+                <label for="bet-suit">Bet Suit:</label>
+                <select id="bet-suit">
+                    <option value="♥">Hearts (♥)</option>
+                    <option value="♦">Diamonds (♦)</option>
+                    <option value="♣">Clubs (♣)</option>
+                    <option value="♠">Spades (♠)</option>
+                </select>
+            </div>
+            <div class="bet-row">
+                <label for="bet-amount">Bet Amount:</label>
+                <input type="number" id="bet-amount" min="1" max="100" value="10">
+            </div>
+            <button onclick="startGame()" id="start-btn">Start Game</button>
+            <p id="current-bet">Current Bet: None</p>
+            <p id="bet-status"></p>
+        </div>
+        <div id="bet-options">
+            <p id="action-text">Choose your action:</p>
+            <button onclick="raiseBet()" id="raise-btn">Raise</button>
+            <button onclick="call()" id="call-btn">Call</button>
+            <button onclick="fold()" id="fold-btn">Fold</button>
+            <label for="raise-amount">Raise Amount:</label>
+            <input type="number" id="raise-amount" min="1" max="100" value="5">
+        </div>
+    </div>
+    <div class="game-container">
+        <div id="track" class="track"></div>
+        <div id="cards-container">
+            <div id="side-cards"></div>
+            <div id="drawn-card"></div>
+        </div>
+    </div>
+    <div id="winner"></div>
+    <div id="settings-modal">
+        <div id="settings-content">
+            <button id="close-settings">Close</button>
+            <h2>Settings</h2>
+            <button id="lang-btn">Toggle Language (English/French)</button>
+            <button id="rules-btn">Show Rules</button>
+            <button id="theme-btn">Toggle Theme (Light/Dark)</button>
+        </div>
+    </div>
+    <div id="rules-modal">
+        <div id="rules-content">
+            <button id="close-rules">Close</button>
+            <h2 id="rules-title">Game Rules</h2>
+            <p id="rules-text"></p>
+        </div>
+    </div>
+
+    <script>
+        const suits = ['♥', '♦', '♣', '♠'];
+        const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+        const positions = { '♥': 0, '♦': 0, '♣': 0, '♠': 0 };
+        const totalRows = 5;
+        const maxDrawnHeight = 640; // 5 * (120px height + 10px gap) + 10px extra
+        let gameOver = false;
+        let credits = 100;
+        let betSuit = null;
+        let totalBetAmount = 0;
+        let betPlaced = false;
+        let flipUsed = false;
+        let sideCards = [];
+        let lastDrawnSuit = null;
+        let isFrench = false;
+        let isLightMode = false;
+
+        const translations = {
+            en: {
+                betSuitLabel: "Bet Suit:",
+                betAmountLabel: "Bet Amount:",
+                startBtn: "Start Game",
+                currentBet: "Current Bet: None",
+                actionText: "Choose your action:",
+                raiseBtn: "Raise",
+                callBtn: "Call",
+                foldBtn: "Fold",
+                raiseAmountLabel: "Raise Amount:",
+                rulesTitle: "Game Rules",
+                rulesText: "1. Bet on a suit (Hearts, Diamonds, Clubs, Spades) with credits.\n2. Each drawn card moves its suit forward 1 space in its lane and stacks to the right of the flippable cards (disappears if stack exceeds track height).\n3. Flip one side card per game: if it matches the last drawn card's suit pair (Hearts/Diamonds or Clubs/Spades), your bet suit moves forward 2 spaces; otherwise, it moves back 2 spaces.\n4. First suit to reach the top wins.\n5. Win 4x your bet if your suit wins, lose your bet if it doesn’t."
+            },
+            fr: {
+                betSuitLabel: "Couleur du pari :",
+                betAmountLabel: "Montant du pari :",
+                startBtn: "Démarrer le jeu",
+                currentBet: "Mise actuelle : Aucune",
+                actionText: "Choisissez votre action :",
+                raiseBtn: "Augmenter",
+                callBtn: "Suivre",
+                foldBtn: "Se coucher",
+                raiseAmountLabel: "Montant de l'augmentation :",
+                rulesTitle: "Règles du jeu",
+                rulesText: "1. Pariez sur une couleur (Cœurs, Carreaux, Trèfles, Piques) avec des crédits.\n2. Chaque carte tirée avance sa couleur d'une case dans sa voie et s'empile à droite des cartes retournables (disparaît si la pile dépasse la hauteur de la piste).\n3. Retournez une carte latérale par jeu : si elle correspond à la paire de la dernière carte tirée (Cœurs/Carreaux ou Trèfles/Piques), votre couleur pariée avance de 2 cases ; sinon, elle recule de 2 cases.\n4. La première couleur à atteindre le sommet gagne.\n5. Gagnez 4x votre mise si votre couleur gagne, perdez votre mise sinon."
+            }
+        };
+
+        function updateLanguage() {
+            const lang = isFrench ? 'fr' : 'en';
+            document.getElementById('bet-suit').previousElementSibling.innerText = translations[lang].betSuitLabel;
+            document.getElementById('bet-amount').previousElementSibling.innerText = translations[lang].betAmountLabel;
+            document.getElementById('start-btn').innerText = translations[lang].startBtn;
+            document.getElementById('current-bet').innerText = betPlaced ? `${isFrench ? "Mise actuelle" : "Current Bet"}: ${totalBetAmount} credits on ${betSuit}` : translations[lang].currentBet;
+            document.getElementById('action-text').innerText = translations[lang].actionText;
+            document.getElementById('raise-btn').innerText = translations[lang].raiseBtn;
+            document.getElementById('call-btn').innerText = translations[lang].callBtn;
+            document.getElementById('fold-btn').innerText = translations[lang].foldBtn;
+            document.getElementById('raise-amount').previousElementSibling.innerText = translations[lang].raiseAmountLabel;
+            document.getElementById('rules-title').innerText = translations[lang].rulesTitle;
+            document.getElementById('rules-text').innerText = translations[lang].rulesText;
+            document.getElementById('lang-btn').innerText = `Toggle Language (${isFrench ? 'English' : 'Français'})`;
+            document.getElementById('theme-btn').innerText = `Toggle Theme (${isLightMode ? (isFrench ? 'Sombre' : 'Dark') : (isFrench ? 'Clair' : 'Light')})`;
+        }
+
+        function toggleLanguage() {
+            isFrench = !isFrench;
+            updateLanguage();
+        }
+
+        function toggleTheme() {
+            isLightMode = !isLightMode;
+            document.body.classList.toggle('light', isLightMode);
+            updateLanguage();
+        }
+
+        function showSettings() {
+            document.getElementById('settings-modal').style.display = 'flex';
+        }
+
+        function hideSettings() {
+            document.getElementById('settings-modal').style.display = 'none';
+        }
+
+        function showRules() {
+            hideSettings();
+            document.getElementById('rules-modal').style.display = 'flex';
+        }
+
+        function hideRules() {
+            document.getElementById('rules-modal').style.display = 'none';
+        }
+
+        document.getElementById('settings-btn').addEventListener('click', showSettings);
+        document.getElementById('close-settings').addEventListener('click', hideSettings);
+        document.getElementById('lang-btn').addEventListener('click', toggleLanguage);
+        document.getElementById('rules-btn').addEventListener('click', showRules);
+        document.getElementById('theme-btn').addEventListener('click', toggleTheme);
+        document.getElementById('close-rules').addEventListener('click', hideRules);
+
+        function initializeTrack() {
+            const track = document.getElementById('track');
+            track.innerHTML = '';
+            suits.forEach(suit => {
+                const lane = document.createElement('div');
+                lane.className = 'lane';
+                for (let i = totalRows - 1; i >= 0; i--) {
+                    const row = document.createElement('div');
+                    row.className = 'row';
+                    row.id = `${suit}-${i}`;
+                    if (i === 0) {
+                        row.innerHTML = `<div class="horse ${suit === '♥' ? 'hearts' : suit === '♦' ? 'diamonds' : suit === '♣' ? 'clubs' : 'spades'}" id="horse-${suit}">${suit}</div>`;
+                    }
+                    lane.appendChild(row);
+                }
+                track.appendChild(lane);
+            });
+            initializeSideCards();
+        }
+
+        function initializeSideCards() {
+            const sideCardsDiv = document.getElementById('side-cards');
+            sideCardsDiv.innerHTML = '';
+            sideCards = [];
+            for (let i = 0; i < 5; i++) {
+                const randomSuit = suits[Math.floor(Math.random() * suits.length)];
+                const randomValue = values[Math.floor(Math.random() * values.length)];
+                sideCards.push({ suit: randomSuit, value: randomValue });
+                const cardBack = document.createElement('div');
+                cardBack.className = 'card-back';
+                cardBack.dataset.index = i;
+                cardBack.onclick = () => flipCard(i);
+                sideCardsDiv.appendChild(cardBack);
+            }
+            document.getElementById('drawn-card').innerHTML = ''; // Reset drawn cards
+        }
+
+        function startGame() {
+            if (betPlaced) return;
+
+            const betInput = document.getElementById('bet-amount');
+            const amount = parseInt(betInput.value);
+            betSuit = document.getElementById('bet-suit').value;
+
+            if (amount > credits || amount <= 0) {
+                document.getElementById('bet-status').innerText = isFrench ? "Montant de pari invalide !" : "Invalid bet amount!";
+                return;
+            }
+
+            totalBetAmount = amount;
+            credits -= amount;
+            betPlaced = true;
+            flipUsed = false;
+            lastDrawnSuit = null;
+            positions['♥'] = 0; positions['♦'] = 0; positions['♣'] = 0; positions['♠'] = 0;
+            document.getElementById('credits').innerText = credits;
+            document.getElementById('current-bet').innerText = `${isFrench ? "Mise actuelle" : "Current Bet"}: ${totalBetAmount} credits on ${betSuit}`;
+            document.getElementById('bet-status').innerText = `${isFrench ? "Jeu démarré avec" : "Game started with"} ${amount} credits on ${betSuit}`;
+            document.getElementById('bet-suit').disabled = true;
+            document.getElementById('bet-amount').disabled = true;
+            document.getElementById('bet-options').style.display = 'flex';
+            initializeTrack();
+        }
+
+        function raiseBet() {
+            if (gameOver || !betPlaced) return;
+
+            const raiseInput = document.getElementById('raise-amount');
+            const amount = parseInt(raiseInput.value);
+
+            if (amount > credits || amount <= 0) {
+                document.getElementById('bet-status').innerText = isFrench ? "Montant d'augmentation invalide !" : "Invalid raise amount!";
+                return;
+            }
+
+            totalBetAmount += amount;
+            credits -= amount;
+            document.getElementById('credits').innerText = credits;
+            document.getElementById('current-bet').innerText = `${isFrench ? "Mise actuelle" : "Current Bet"}: ${totalBetAmount} credits on ${betSuit}`;
+            document.getElementById('bet-status').innerText = isFrench ? `Augmenté de ${amount} crédits` : `Raised by ${amount} credits`;
+            drawCard();
+        }
+
+        function call() {
+            if (gameOver || !betPlaced) return;
+            document.getElementById('bet-status').innerText = isFrench ? "Suivi - pas de mise supplémentaire" : "Called - no additional bet";
+            drawCard();
+        }
+
+        function fold() {
+            if (gameOver || !betPlaced) return;
+            document.getElementById('bet-status').innerText = isFrench ? `Couché - Vous avez perdu votre mise de ${totalBetAmount} crédits` : `Folded - You lost your bet of ${totalBetAmount} credits`;
+            gameOver = true;
+            document.getElementById('bet-options').style.display = 'none';
+        }
+
+        function drawCard() {
+            if (gameOver || !betPlaced) return;
+
+            const randomSuit = suits[Math.floor(Math.random() * suits.length)];
+            const randomValue = values[Math.floor(Math.random() * values.length)];
+            const drawnCardDiv = document.getElementById('drawn-card');
+
+            const card = document.createElement('div');
+            card.className = `card ${randomSuit === '♥' ? 'hearts' : randomSuit === '♦' ? 'diamonds' : randomSuit === '♣' ? 'clubs' : 'spades'}`;
+            card.innerHTML = `
+                <div class="top-left">${randomValue}</div>
+                <div class="suit">${randomSuit}</div>
+                <div class="bottom-right">${randomValue}</div>
+            `;
+
+            // Check height and remove oldest card if necessary
+            const cardHeight = 130; // 120px height + 10px gap
+            const currentHeight = drawnCardDiv.children.length * cardHeight;
+            if (currentHeight + cardHeight > maxDrawnHeight) {
+                drawnCardDiv.removeChild(drawnCardDiv.firstChild); // Remove top (oldest) card
+            }
+
+            drawnCardDiv.appendChild(card); // Add new card to bottom
+
+            lastDrawnSuit = randomSuit;
+            moveHorse(randomSuit);
+        }
+
+        function moveHorse(suit) {
+            const currentPos = positions[suit];
+            if (currentPos < totalRows - 1) {
+                positions[suit]++;
+                const horse = document.getElementById(`horse-${suit}`);
+                horse.classList.add('moving');
+                setTimeout(() => horse.classList.remove('moving'), 300);
+                updateHorsePosition(suit, currentPos, positions[suit]);
+                checkWinner(suit);
+            } else {
+                checkWinner(suit);
+            }
+        }
+
+        function updateHorsePosition(suit, oldPos, newPos) {
+            const oldRow = document.getElementById(`${suit}-${oldPos}`);
+            const newRow = document.getElementById(`${suit}-${newPos}`);
+            const horse = document.getElementById(`horse-${suit}`);
+            oldRow.innerHTML = '';
+            newRow.appendChild(horse);
+        }
+
+        function flipCard(index) {
+            if (gameOver || !betPlaced || flipUsed) {
+                document.getElementById('bet-status').innerText = flipUsed ? (isFrench ? "Vous avez déjà retourné une carte !" : "You already flipped a card this game!") : (isFrench ? "Jeu non démarré ou terminé !" : "Game not started or over!");
+                return;
+            }
+            if (!lastDrawnSuit) {
+                document.getElementById('bet-status').innerText = isFrench ? "Tirez une carte d'abord !" : "Draw a card first before flipping!";
+                return;
+            }
+
+            flipUsed = true;
+            const card = sideCards[index];
+            const sideCardsDiv = document.getElementById('side-cards');
+            const cardElement = sideCardsDiv.children[index];
+            cardElement.className = `card-back revealed ${card.suit === '♥' ? 'hearts' : card.suit === '♦' ? 'diamonds' : card.suit === '♣' ? 'clubs' : 'spades'}`;
+            cardElement.innerHTML = `
+                <div class="top-left">${card.value}</div>
+                <div class="suit">${card.suit}</div>
+                <div class="bottom-right">${card.value}</div>
+            `;
+            cardElement.onclick = null;
+
+            const suitPairs = { '♥': '♦', '♦': '♥', '♣': '♠', '♠': '♣' };
+            const isMatchingPair = (card.suit === lastDrawnSuit || suitPairs[lastDrawnSuit] === card.suit);
+            if (isMatchingPair) {
+                document.getElementById('bet-status').innerText = isFrench ?
+                    `Retourné ${card.value}${card.suit} correspond à la paire avec ${lastDrawnSuit} - Boost ! ${betSuit} avance de 2 cases.` :
+                    `Flipped ${card.value}${card.suit} matches pair with ${lastDrawnSuit} - Boost! ${betSuit} moves forward 2 spaces.`;
+                let steps = 2;
+                while (steps > 0 && positions[betSuit] < totalRows - 1) {
+                    const oldPos = positions[betSuit];
+                    positions[betSuit]++;
+                    updateHorsePosition(betSuit, oldPos, positions[betSuit]);
+                    steps--;
+                }
+                checkWinner(betSuit);
+            } else {
+                document.getElementById('bet-status').innerText = isFrench ?
+                    `Retourné ${card.value}${card.suit} ne correspond pas à la paire avec ${lastDrawnSuit} - Déclassement ! ${betSuit} recule de 2 cases.` :
+                    `Flipped ${card.value}${card.suit} doesn't match pair with ${lastDrawnSuit} - Downgrade! ${betSuit} moves back 2 spaces.`;
+                let steps = 2;
+                while (steps > 0 && positions[betSuit] > 0) {
+                    const oldPos = positions[betSuit];
+                    positions[betSuit]--;
+                    updateHorsePosition(betSuit, oldPos, positions[betSuit]);
+                    steps--;
+                }
+            }
+        }
+
+        function checkWinner(suit) {
+            if (positions[suit] === totalRows - 1) {
+                document.getElementById('winner').innerText = isFrench ? `Gagnant : ${suit} !` : `Winner: ${suit}!`;
+                gameOver = true;
+                calculatePayout(suit);
+                document.getElementById('bet-options').style.display = 'none';
+            }
+        }
+
+        function calculatePayout(winningSuit) {
+            if (winningSuit === betSuit) {
+                const payout = totalBetAmount * 4;
+                credits += payout;
+                document.getElementById('bet-status').innerText = isFrench ?
+                    `Vous avez gagné ${payout} crédits ! Total des crédits : ${credits}` :
+                    `You won ${payout} credits! Total credits: ${credits}`;
+            } else {
+                document.getElementById('bet-status').innerText = isFrench ?
+                    `Vous avez perdu votre mise de ${totalBetAmount} crédits` :
+                    `You lost your bet of ${totalBetAmount} credits`;
+            }
+            document.getElementById('credits').innerText = credits;
+        }
+
+        initializeTrack();
+        updateLanguage();
+    </script>
+</body>
+
+</html>
